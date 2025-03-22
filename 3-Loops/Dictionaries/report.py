@@ -1,7 +1,7 @@
 """
 Given a dictionary representing a spacecraft, create a report that includes the spacecraft's name and distance from Earth. 
 If the distance is not provided, use "Unknown" as the default value.
-Use update() to add multiple key-value pairs to the dictionary.
+Use .update() to add multiple key-value pairs to the dictionary.
 """
 
 def main():
