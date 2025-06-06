@@ -11,7 +11,7 @@
 
 import os
 
-file_path = os.path.join(os.path.dirname(__file__), "students.csv")
+file_path = os.path.join(os.path.dirname(__file__), "students_reader.csv")
 
 
 """ ----------------------- Task One: print student name and house in content's order ----------------------- """

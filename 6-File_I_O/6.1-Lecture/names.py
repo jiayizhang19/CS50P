@@ -10,6 +10,8 @@ Reference link: https://docs.python.org/3/library/functions.html#open
    This object is designed to be iterable, meaning you can loop over it line by line. So we can use for loop directly.
    Each iteration of the for loop gives you one line from the file (as a string).
    
+4. file.read() will return one big string of all the content inside the .txt file, while file.readlines() will return a list of individual lines in that file.
+   Similiarly, file.writelines() will write to the new file by individual line.
 """
 
 import os
