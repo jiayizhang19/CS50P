@@ -1,4 +1,7 @@
 """
+See regular expression documentation in details as followed:
+https://docs.python.org/3/library/re.html
+
 regular expression symbols:
 . --> any character except a newline
 * --> 0 or more repetitions
