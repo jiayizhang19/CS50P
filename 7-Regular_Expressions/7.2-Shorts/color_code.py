@@ -1,3 +1,10 @@
+"""
+.group() --> return the entire match
+.group(0) --> same as above
+.group(n) --> return the specific part of the match
+
+"""
+
 import re
 
 def main():
