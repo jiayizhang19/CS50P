@@ -12,10 +12,13 @@ def main():
     matches = re.search(pattern, number)
     if matches:
         country_code = matches.group("country_code")
-        try:
-            print(locations[country_code])
-        except KeyError:
-            print("Not registered in the system.")
+        # Approach One
+        # try:
+        #     print(locations[country_code])
+        # except KeyError:
+        #     print("Not registered in the system.")
+        # Approach Two
+        print(locations.get(country_code, "Not registered in the system"))
     else:
         print("Invalid number.")
 
