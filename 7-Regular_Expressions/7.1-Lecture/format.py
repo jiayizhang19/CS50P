@@ -17,7 +17,8 @@ secondly, ask boolean question about it (e.g. if or elif question) in the same l
 import re
 
 name = input("What's your name? ")
-matches = re.search(r"^(.+), *(.+)$", name)
+pattern = r"^(.+), *(.+)$"
+matches = re.search(pattern, name)
 if matches:
     # Approach One:
     # last, first = matches.groups()
