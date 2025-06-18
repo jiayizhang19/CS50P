@@ -1,4 +1,7 @@
 """
+-------------------- instance variables and instance methods are introduced in this file. --------------------
+instance variables and methods belong to or operate on specific objects -- a specific student.
+
 a class contains:
    --> attribute, 
    --> method and 
