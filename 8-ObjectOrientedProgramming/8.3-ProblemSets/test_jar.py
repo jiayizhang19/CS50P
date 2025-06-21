@@ -4,6 +4,15 @@ it is still required to write str(jar) instead of jar in assertion.
 When pytests is doing comparation, jar is still accounted for the format of object, 
 thus need to turn object jar with formatted string into string. before comparing it to the assertion string.
 
+Note that it's not as easy to test instance methods as it is to test functions alone, 
+since instance methods sometimes manipulate the same “state” (i.e., instance variables). 
+To test one method (e.g., withdraw), then, you might need to call another method first (e.g., deposit). 
+But the method you call first might itself not be correct!
+
+And so programmers sometimes mock (i.e., simulate) state when testing methods, 
+as with Python’s own mock object library, per https://docs.python.org/3/library/unittest.mock.html
+so that you can call just the one method but modify the underlying state first, without calling the other method to do so.
+
 """
 
 from jar import Jar
