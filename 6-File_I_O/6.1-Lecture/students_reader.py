@@ -9,8 +9,13 @@
     -> The for loop later just iterates over the sorted list—it doesn't affect the lambda
 """
 
+import os
+
+file_path = os.path.join(os.path.dirname(__file__), "students_reader.csv")
+
+
 """ ----------------------- Task One: print student name and house in content's order ----------------------- """
-# with open("students.csv") as file:
+# with open(file_path) as file:
 #     for line in file:
 #         """
 #         Instead of using 
@@ -24,7 +29,7 @@
 """ ----------------------- Task Two: print student name and house by name in ascending order ----------------------- """
     # --------------------- Approach One: Pass regular funtion to the key statement inside sorted() ---------------------
 # students = []
-# with open("students.csv") as file:
+# with open(file_path) as file:
 #     for line in file:
 #         name, house = line.rstrip().split(",")
 #         student = {"name": name, "house": house}
@@ -38,7 +43,7 @@
 
     # --------------------- Approach Two: Pass anonymous function to the key statement inside sorted() ---------------------
 students = []
-with open("students.csv") as file:
+with open(file_path) as file:
     for line in file:
         name, house = line.rstrip().split(",")
         student = {"name": name, "house": house}
