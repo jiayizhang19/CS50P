@@ -24,7 +24,7 @@ If there aren’t that many cookies in the cookie jar, though, withdraw should i
 class Jar:
     def __init__(self, capacity=12):
         self.capacity = capacity
-        self.size = 0
+        self._size = 0
 
     def __str__(self):
         return self.size * "🍪"
@@ -54,10 +54,6 @@ class Jar:
     @property
     def size(self):
         return self._size
-
-    @size.setter
-    def size(self, n):
-        self._size = n
 
 
 

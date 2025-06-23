@@ -27,9 +27,9 @@ def test_init():
 
 def test_str():
     jar = Jar()
-    assert jar == ""
+    assert str(jar) == ""
     jar.deposit(3)
-    assert jar == "🍪🍪🍪"
+    assert str(jar) == "🍪🍪🍪"
 
 
 def test_withdraw():
