@@ -1,7 +1,8 @@
 """
 global:
 A global variable could be read directly while can not be written in the same way without using the keyword global.
-Even moving balance into main() does not work, as the balance here is still a local variable to main(), instead of deposit() and withdraw().
+Even moving balance into main() does not work, as the balance here is still a local variable to main(), 
+instead of a global variable to deposit() and withdraw().
 
 """
 # Approach One
