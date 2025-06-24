@@ -8,6 +8,7 @@ Using the *args to accept a variable number of positional arguments in a functio
 Using the **kwargs to accept a variable number of keyword arguments in a function.
 """
 
+# ============= Function to unpack list and disctionary =============
 # def total(galleons, sickles, knuts):
 #     return (galleons * 17 + sickles) * 29 + knuts
 
@@ -18,7 +19,7 @@ Using the **kwargs to accept a variable number of keyword arguments in a functio
 # coins_dict = {'galleons': 100, 'sickles': 50, 'knuts': 25}
 # print(total(**coins_dict), "Knuts")
 
-
+# ============= Function with *args and **kwargs =============
 def f(*args, **kwargs):
     print("Positional arguments:", args)
     print("Keyword arguments:", kwargs)
