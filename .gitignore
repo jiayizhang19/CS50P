@@ -1,3 +1,4 @@
 # All __pycache__ folders at any depth — even deeply nested.
+venv/
 **/__pycache__/
 **/.mypy_cache/
