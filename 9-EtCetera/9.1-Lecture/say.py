@@ -1,3 +1,7 @@
+"""
+Text to speech
+"""
+
 import cowsay
 import pyttsx3
 
