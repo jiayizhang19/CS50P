@@ -1,7 +1,39 @@
 import speech_recognition as sr
+from scipy.io.wavfile import write
+import sounddevice as sd
+import whisper
 
 def main():
+    audio = get_audio()
+    recording = get_audio_until_enter()
+    record_speech(recording)
+    print(speech_to_text(recording))
+    
+
+
+def live_speech_to_text():
     ...
+
+def recording_to_text(recording = "manual_recording.wav"):
+    model = whisper.load_model("base")
+    result = model.transcribe(recording)
+    print(result["text"])
+    with open("transcript.txt", "a") as f:
+        f.write(f'\n\n{result["text"]}')
+
+
+def get_audio_until_enter(filename="manual_recording.wav", samplerate=16000):
+    duration = 60  # maximum length fallback
+    print("Recording... Press Enter to stop.")
+    # Start recording
+    recording = sd.rec(int(duration * samplerate), samplerate=samplerate, channels=1, dtype='int16')
+    # Wait for user to stop
+    input()
+    # Stop the recording
+    sd.stop()
+    # Save to .wav file
+    write(filename, samplerate, recording)
+    print(f"Recording saved to {filename}")
 
 
 def record_speech(audio):
@@ -32,4 +64,7 @@ def get_input_device():
 
 
 if __name__ == "__main__":
-    record_speech(get_audio())
+    # main()
+    # get_audio_until_enter()
+    recording_to_text()
+
