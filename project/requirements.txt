@@ -2,3 +2,7 @@ SpeechRecognition
 SpeechRecognition[audio]
 scipy
 sounddevice
+openai-whisper
+pyaudio
+numoy
+keyboard
