@@ -3,6 +3,7 @@ SpeechRecognition[audio]
 scipy
 sounddevice
 openai-whisper
+faster-whisper
 pyaudio
 numoy
 keyboard
