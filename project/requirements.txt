@@ -5,5 +5,6 @@ sounddevice
 openai-whisper
 faster-whisper
 pyaudio
-numoy
+numpy
 keyboard
+webrtcvad
