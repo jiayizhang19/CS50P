@@ -1,10 +1,7 @@
-SpeechRecognition
-SpeechRecognition[audio]
 scipy
-sounddevice
 openai-whisper
 faster-whisper
 pyaudio
 numpy
 keyboard
-webrtcvad
+
