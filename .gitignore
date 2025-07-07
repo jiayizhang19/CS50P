@@ -3,4 +3,5 @@ venv/
 **/__pycache__/
 **/.mypy_cache/
 **/.wav
-**/transcript.txt
+**/.mp3
+**/.mp4
