@@ -1,116 +1,59 @@
-
-# import whisper
 from faster_whisper import WhisperModel
 import numpy as np
 import pyaudio
 import keyboard
-from scipy.io import wavfile
-# from gtts import gTTS
-# import playsound
+from googletrans import Translator
+import edge_tts
+import playsound
 import os
+import tempfile
+import asyncio
+
+
+en_to_ch = {"speech": "en", "src": "en", "dest": "zh-CN", "voice": "zh-CN-XiaoxiaoNeural"}
+ch_to_en = {"speech": "zh", "src": "zh-CN", "dest": "en", "voice": "en-US-JennyNeural"}
+
 
 def main():
-    task = get_task()
-    text = process_dialogue(task="transcribe")
+    choice = get_choice()
+    text = speech_to_text(choice["speech"])
     print(">", text)
-    # text = "this is CS50"
-    # text_to_speech(text)
+    translation = translate_text(text=text, src=choice["src"], dest=choice["dest"])
+    print(translation)
+    asyncio.run(text_to_speech(translation, voice=choice["voice"]))
 
 
-
-def get_task():
+def get_choice():
     while True:
-        text = input("Press 1 for translate, 2 for transcribe: ")
+        text = input("Press 1 for en to ch, 2 for ch to en: ")
         if "1" in text:
-            return "translate"
+            return en_to_ch
         elif "2" in text:
-            return "transcribe"
+            return ch_to_en
         else:
             continue
 
 
-def get_speech_type(text):
-    ...
+def translate_text(text, src, dest):
+    translator = Translator()
+    result = translator.translate(text, src=src, dest=dest)
+    return result.text
 
 
-def text_to_speech(text):
-    ...
-    # tts = gTTS()
+async def text_to_speech(text, voice):
+    # Create a temp mp3 file
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp:
+        output_path = temp.name
+    communicate = edge_tts.Communicate(text=text, voice=voice)
+    await communicate.save(output_path)
+    # Play the audio and remove
+    playsound.playsound(output_path)
+    os.remove(output_path)
 
-    
-def process_live_speech(task="transcribe"):
+
+def speech_to_text(language, model_size="base"):
     """
-    chunk_size: the number of samples
-    sample_rate: the number of samples per second
-    chunk_size / sample_rate = xx seconds, e.g. 2048 / 16000 = 0.128s
-    """
-    # Live audio config
-    sample_rate = 16000
-    chunk_size = 2048
-    min_chunk_seconds = 2
-    overlap_duration = 0.5
-    min_samples = sample_rate * min_chunk_seconds   # Buffer 2 seconds of audio
-    overlap_samples = int(sample_rate * overlap_duration)   # 0.5 second of overlap
-
-    audio, stream, chunk_size = initialize_audio_stream(chunk_size=chunk_size)
-    audio_buffer = np.array([], dtype=np.int16)
-    prev_tail = np.array([], dtype=np.int16)  
-    print("Recording ... Press Enter to stop")
-    print("> ", end="")
-    try:
-        while not keyboard.is_pressed("enter"):
-            # Each data is a small NumPy array
-            raw_data = stream.read(num_frames=chunk_size, exception_on_overflow=False)
-            new_chunk = np.frombuffer(raw_data, dtype=np.int16)
-            audio_buffer = np.concatenate((audio_buffer,new_chunk))
-            if len(audio_buffer) >= min_samples:
-                chunk_with_tail = np.concatenate((prev_tail, audio_buffer))
-                text = speech_to_text(chunk_with_tail, task)
-                prev_tail = audio_buffer[-overlap_samples:]
-                audio_buffer = np.array([], dtype=np.int16)
-                if text:
-                    print(f"{text}", end="", flush=True)
-    finally:
-        if len(audio_buffer) > 0:
-            final_chunk = np.concatenate((prev_tail, audio_buffer))
-            text = speech_to_text(final_chunk, task)
-            if text:
-                print(f"{text}", end=" ", flush=True)
-        print("\n> End...")
-        clean_up_audio_stream(stream, audio)
-        
-
-def process_dialogue(task="transcribe"):
-    """
-    Records audio in chunks until Enter key is pressed.
-    Returns Numpy array of recorded audio data.
-    """
-    audio, stream, chunk_size = initialize_audio_stream()
-    frames = []
-    print("Recording ... Press Enter to stop")
-    while not keyboard.is_pressed("enter"):
-        # Each data is a small NumPy array
-        data = stream.read(num_frames=chunk_size, exception_on_overflow=False)
-        frames.append(np.frombuffer(data, dtype=np.int16))
-    # combine each small array to one long array for whisper
-    audio_data = np.concatenate(frames)
-    clean_up_audio_stream(stream=stream, audio=audio)
-    return speech_to_text(audio_data, task)
-    
-
-def process_wav_recording(file, task="transcribe"):
-    """
-    Load .wav file and convert to numpy array
-    """
-    _, audio_data = wavfile.read(file)
-    if len(audio_data.shape) > 1:
-        audio_data = audio_data.mean(axis=1)
-    return speech_to_text(audio_data, task)
-
-
-def speech_to_text(audio_data, task, model_size="base"):
-    """
-    Convert audio to text with Whisper, with the default task 
+    Convert audio to text with Whisper, with the default task as transcribe
     Arg:
         audio_data: audio data in 16-bit integer type in numpy array, ranging from -32768 to 32727.
                     Need to convert audio data from 16-bit int to 32-bit float ranging from -1.0 to 1.0, expected by most audio processing models.
@@ -120,13 +63,8 @@ def speech_to_text(audio_data, task, model_size="base"):
     Returns:
         text
     """
+    audio_data = process_dialogue_data()
     audio_float = audio_data.astype(np.float32) / 32768.0
-    # =================================================================================== 
-    # >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> using whisper <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-    # model = whisper.load_model(model)
-    # result = model.transcribe(audio_float, fp16=False) # fp16 is not supported on CPU but GPU, usinng fp32 byb default on CPU
-    # return result["text"]
-    # ===================================================================================
     model = WhisperModel(
         model_size, 
         device="cpu", 
@@ -136,11 +74,29 @@ def speech_to_text(audio_data, task, model_size="base"):
         audio_float, 
         beam_size=5, # better decoding accuracy
         vad_filter=True, # set to True aviods wasting whisper's time and CPU on silence
-        # language="en",
-        task=task
+        language=language,
         )
     return " ".join(segment.text for segment in segments)
     
+
+def process_dialogue_data():
+    """
+    Records audio in chunks until Enter key is pressed.
+    Returns Numpy array of recorded audio data for whisper usage in speech_to_text
+    """
+    audio, stream, chunk_size = initialize_audio_stream()
+    frames = []
+    print("Recording ... Press Enter to stop")
+    while not keyboard.is_pressed("enter"):
+        # Each data is a small NumPy array
+        data = stream.read(num_frames=chunk_size, exception_on_overflow=False)
+        frames.append(np.frombuffer(data, dtype=np.int16))
+    # combine each small array to one long array for whisper audio input
+    audio_data = np.concatenate(frames)
+    clean_up_audio_stream(stream=stream, audio=audio)
+    # return speech_to_text(audio_data)
+    return audio_data
+
 
 def initialize_audio_stream(sample_rate=16000, chunk_size=1024):
     """
