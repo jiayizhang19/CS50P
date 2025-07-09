@@ -1,4 +1,5 @@
 from faster_whisper import WhisperModel
+from zhconv import convert
 import numpy as np
 import pyaudio
 import keyboard
@@ -9,9 +10,11 @@ import os
 import tempfile
 import asyncio
 
-
 en_to_ch = {"speech": "en", "src": "en", "dest": "zh-CN", "voice": "zh-CN-XiaoxiaoNeural"}
 ch_to_en = {"speech": "zh", "src": "zh-CN", "dest": "en", "voice": "en-US-JennyNeural"}
+
+model = WhisperModel("base", device="cpu", compute_type="int8")
+translator = Translator()
 
 
 def main():
@@ -35,7 +38,6 @@ def get_choice():
 
 
 def translate_text(text, src, dest):
-    translator = Translator()
     result = translator.translate(text, src=src, dest=dest)
     return result.text
 
@@ -51,7 +53,7 @@ async def text_to_speech(text, voice):
     os.remove(output_path)
 
 
-def speech_to_text(language, model_size="base"):
+def speech_to_text(language):
     """
     Convert audio to text with Whisper, with the default task as transcribe
     Arg:
@@ -65,18 +67,14 @@ def speech_to_text(language, model_size="base"):
     """
     audio_data = process_dialogue_data()
     audio_float = audio_data.astype(np.float32) / 32768.0
-    model = WhisperModel(
-        model_size, 
-        device="cpu", 
-        compute_type="int8"
-        )
     segments, _ = model.transcribe(
         audio_float, 
         beam_size=5, # better decoding accuracy
         vad_filter=True, # set to True aviods wasting whisper's time and CPU on silence
         language=language,
         )
-    return " ".join(segment.text for segment in segments)
+    text = " ".join(segment.text for segment in segments)
+    return convert(text, "zh-cn") if language == "zh" else text
     
 
 def process_dialogue_data():
