@@ -20,9 +20,9 @@ translator = Translator()
 def main():
     choice = get_choice()
     text = speech_to_text(choice["speech"])
-    print(">", text)
+    print("> Speech: ", text)
     translation = translate_text(text=text, src=choice["src"], dest=choice["dest"])
-    print(translation)
+    print("> Translation: ", translation)
     asyncio.run(text_to_speech(translation, voice=choice["voice"]))
 
 
@@ -43,14 +43,15 @@ def translate_text(text, src, dest):
 
 
 async def text_to_speech(text, voice):
-    # Create a temp mp3 file
+    """
+    create a temp .mp3 file, then play it instantly and remote it
+    """
     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as temp:
-        output_path = temp.name
+        output_file = temp.name
     communicate = edge_tts.Communicate(text=text, voice=voice)
-    await communicate.save(output_path)
-    # Play the audio and remove
-    playsound.playsound(output_path)
-    os.remove(output_path)
+    await communicate.save(output_file)
+    playsound.playsound(output_file)
+    os.remove(output_file)
 
 
 def speech_to_text(language):
@@ -69,7 +70,7 @@ def speech_to_text(language):
     audio_float = audio_data.astype(np.float32) / 32768.0
     segments, _ = model.transcribe(
         audio_float, 
-        beam_size=5, # better decoding accuracy
+        beam_size=5, # better decoding accuracy with the larger number
         vad_filter=True, # set to True aviods wasting whisper's time and CPU on silence
         language=language,
         )
@@ -92,7 +93,6 @@ def process_dialogue_data():
     # combine each small array to one long array for whisper audio input
     audio_data = np.concatenate(frames)
     clean_up_audio_stream(stream=stream, audio=audio)
-    # return speech_to_text(audio_data)
     return audio_data
 
 
