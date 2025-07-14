@@ -2,15 +2,23 @@ from faster_whisper import WhisperModel
 from googletrans import Translator
 from datetime import timedelta
 import asyncio
+import sys
+
 
 model = WhisperModel("base", device="cpu", compute_type="int8")
 translator = Translator()
 
-def main(audio):
-    text = extract_text_from_speech(audio)
-    save_to_txt(text)
-    translation = translate_text(text=text, src="en", dest="zh-CN")
-    print("Translation: ", translation, sep="\n")
+def main():
+    if len(sys.argv) < 2:
+        sys.exit("Too few arguments.")
+    elif len(sys.argv) > 2:
+        sys.exit("Too many arguments.")
+    bilingual = input("Do you want a bilingual transcription in both English and Chinese? (y/n): ")
+    text = extract_text_from_speech(sys.argv[1])
+    if "y" in bilingual.lower():
+        asyncio.run(save_to_txt(text, True))
+    else:
+        asyncio.run(save_to_txt(text))
 
 
 def extract_text_from_speech(audio):
@@ -31,7 +39,7 @@ async def save_to_txt(text, translation=False):
         if translation:
             for t in text:
                 f.write(f"{t}\n")
-                ch = await translate_text(t)
+                ch = await translate_text(t[5:])
                 f.write(f"{ch}\n")
         else:
             for t in text:
@@ -47,8 +55,8 @@ async def translate_text(text, src="en", dest="zh-CN"):
 def format_timestamp(sec):
     """
     Format timestamp to minutes and seconds (MM:SS)
-    Arg: second in integer
-    Return: timestamp in 00:00
+    Arg: second in integer, e.g. 65s
+    Return: timestamp in 00:00, e.g. 01:05
     """
     tm = str(timedelta(seconds=sec)).split(".")[0]
     tm = tm[2:]
@@ -56,10 +64,10 @@ def format_timestamp(sec):
     
 
 if __name__ == "__main__":
-    audio = "03_Whats_for_Dinner.mp4"
-    # main(audio)
-    text = extract_text_from_speech(audio)
-    asyncio.run(save_to_txt(text))
+    # audio = "03_Whats_for_Dinner.mp4"
+    main()
+    # text = extract_text_from_speech(audio)
+    # asyncio.run(save_to_txt(text))
     # print(asyncio.run(translate_text("How are you", src="en", dest="zh-CN")))
     # print(format_timestamp(6.84))
 
